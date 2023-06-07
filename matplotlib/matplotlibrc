@@ -1,0 +1,41 @@
+## Backend
+backend : qt5agg
+
+## Font
+font.family:  serif
+# font.serif: "Liberation Serif"
+font.style:   normal
+font.size:    11.0
+
+## LaTeX
+text.usetex: True
+text.latex.preamble : \usepackage{amsmath} \usepackage{amssymb} #\usepackage{sfmath}
+
+
+## Axes
+# axes.prop_cycle : cycler('color', ['4477AA', 'EE6677', '228833', 'CCBB44', '66CCEE', 'AA3377', 'BBBBBB'])
+axes.prop_cycle : cycler('color', ["0d49fb", "e6091c", "26eb47", "8936df", "fec32d", "25d7fd"])
+axes.grid: True
+grid.linestyle: -
+grid.linewidth: 0.5
+grid.alpha:     0.7
+# axes.spines.top: False
+# axes.spines.right: False
+
+## Ticks
+xtick.direction: in
+ytick.direction: in
+
+## Legend
+legend.fancybox: False
+
+# Hist
+hist.bins: auto
+
+# savefig
+savefig.transparent: True
+
+## keymap
+keymap.home: a, h, r, home
+keymap.xscale: l
+keymap.yscale: L
