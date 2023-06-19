@@ -73,8 +73,7 @@ return require('packer').startup(function(use)
 
         -- Colorscheme
         use 'tanvirtin/monokai.nvim'
-        use 'rafi/awesome-vim-colorschemes'
-        use { 'rose-pine/neovim', as = 'rose-pine' }
+        use 'rakr/vim-one'
 
         --l -- Git integration
         --l use 'tpope/vim-fugitive'
