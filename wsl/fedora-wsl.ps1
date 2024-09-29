@@ -11,18 +11,21 @@ param(
 
 $arch = "x86_64"
 $scriptDir = Split-Path $PSCommandPath
+Write-Output $scriptDir
 
 # Download Cloud Image
 if (!(Test-Path "$scriptDir\Fedora-${Version}.tar")) {
     $items = Invoke-RestMethod -Uri https://api.github.com/repos/fedora-cloud/docker-brew-fedora/contents/${arch}?ref=${Version}
     foreach ($item in $items) {
         if ($item.name -match "^fedora.*\.tar$") {
+            Write-Output $item.name
             Invoke-WebRequest -Uri $item.download_url -OutFile "$scriptDir\Fedora-${Version}.tar" -ErrorAction Stop
         }
     }
 }
+if (!(Test-Path "$scriptDir\Fedora-${Version}.tar")) { Write-Output "Can not download image !!"; exit }
 
-# Make distro folder
+# create distro folder
 if (!(Test-Path "$InstallDirectory\$DistroName")) {
     mkdir "$InstallDirectory\$DistroName"
 }
@@ -33,29 +36,17 @@ wsl --import "$DistroName" "$InstallDirectory\$DistroName" "$scriptDir\Fedora-${
 wsl -d "$DistroName" -u root -e sed -i "/nodocs/d" /etc/dnf/dnf.conf
 
 wsl -d "$DistroName" -u root -e bash -c @"
-echo '[boot]
-systemd=true' >> /etc/wsl.conf
-"@
-
-wsl -d "$DistroName" -u root -e bash -c @"
 # disable update-testing repo
-dnf config-manager setopt updates-testing.enabled=0
+mv /etc/yum.repos.d/fedora-updates-testing.repo /etc/yum.repos.d/fedora-updates-testing.repo.bak
 # update system
-dnf update -y
+echo 'dnf update -y'
+dnf update -y > /dev/null 2>&1
 # install system command
-dnf install -y sudo ncurses dnf-plugins-core dnf-utils passwd findutils cracklib-dicts glibc-locale-source glibc-langpack-en which
+echo 'dnf install -y sudo ncurses passwd findutils cracklib-dicts glibc-locale-source glibc-langpack-en which dnf-utils dnf-plugins-core'
+dnf install -y sudo ncurses passwd findutils cracklib-dicts glibc-locale-source glibc-langpack-en which dnf-utils dnf-plugins-core > /dev/null 2>&1
 # install dev tools
-dnf install -y wget curl vim neovim git #tig nethogs
-dnf install -y clang make cmake 
-dnf install -y gnuplot 
-
-# enable systemd
-git clone https://github.com/scaryrawr/bottle-imp 
-cd bottle-imp 
-make internal-systemd
-make internal-binfmt
-cd ..
-rm -rf bottle-imp
+echo 'dnf install -y wget curl neovim git gcc make procps-ng'
+dnf install -y wget curl neovim git gcc make procps-ng > /dev/null 2>&1
 
 # read username from input or parameter
 username=$UserName
@@ -65,17 +56,22 @@ if [ -z '$username' ]; then
 fi
 
 # add user
+echo ''
 useradd -m -G adm,wheel,dialout,cdrom,floppy,audio,video $username
 passwd $username
 
 # Set default user as first non-root user
-echo '[user]
+echo '[boot]
+systemd=true
+[user]
 default=$username' >> /etc/wsl.conf
 "@
+wsl -t "${DistroName}"
 
 # configure neovim
 wsl -d "$DistroName" -e bash -c @"
     cd ~
+    pwd
     git clone https://github.com/liuxu89/kickstart.nvim .config/nvim
     nvim +PlugInstall +qall
 "@
@@ -95,7 +91,7 @@ EOF' >> .cargo/config
 
 source .bashrc
 
-curl -sSf https://sh.rustup.rs | sh -s -- -y
+curl -sSf https://sh.rustup.rs | sh -s -- -y > /dev/null
 "@
 
 
@@ -107,7 +103,7 @@ echo 'export JULIA_PKG_SERVER=https://mirrors.pku.edu.cn/julia' >> ~/.bashrc
 
 source .bashrc
 
-curl -fsSL https://install.julialang.org | sh -s -- -y
+curl -fsSL https://install.julialang.org | sh -s -- -y > /dev/null
 "@
 
 # Terminate for launching with systemd support
