@@ -11,14 +11,12 @@ param(
 
 $arch = "x86_64"
 $scriptDir = Split-Path $PSCommandPath
-Write-Output $scriptDir
 
 # Download Cloud Image
 if (!(Test-Path "$scriptDir\Fedora-${Version}.tar")) {
     $items = Invoke-RestMethod -Uri https://api.github.com/repos/fedora-cloud/docker-brew-fedora/contents/${arch}?ref=${Version}
     foreach ($item in $items) {
         if ($item.name -match "^fedora.*\.tar$") {
-            Write-Output $item.name
             Invoke-WebRequest -Uri $item.download_url -OutFile "$scriptDir\Fedora-${Version}.tar" -ErrorAction Stop
         }
     }
@@ -91,7 +89,7 @@ EOF' >> .cargo/config
 
 source .bashrc
 
-curl -sSf https://sh.rustup.rs | sh -s -- -y > /dev/null
+curl -sSf https://sh.rustup.rs | sh -s -- -y
 "@
 
 
@@ -103,7 +101,7 @@ echo 'export JULIA_PKG_SERVER=https://mirrors.pku.edu.cn/julia' >> ~/.bashrc
 
 source .bashrc
 
-curl -fsSL https://install.julialang.org | sh -s -- -y > /dev/null
+curl -fsSL https://install.julialang.org | sh -s -- -y
 "@
 
 # Terminate for launching with systemd support
