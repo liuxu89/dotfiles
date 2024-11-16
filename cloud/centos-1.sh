@@ -1,3 +1,11 @@
+dnf install -y epel-release
+dnf install -y vim git bash-completion sqlite
+
+# date and time
+dnf install -y systemd-timesyncd
+systemctl enable --now systemd-timesyncd
+timedatectl set-timezone Asia/Shanghai
+
 # sshd
 cat > /etc/ssh/sshd_config.d/99-liuxu.conf <<eof
 PasswordAuthentication yes
@@ -8,8 +16,8 @@ ClientAliveCountMax 3
 eof
 systemctl restart sshd.service
 
-# net tools
-dnf install -y wget curl git vim net-tools
+# net tools etc
+dnf install -y wget curl net-tools nethogs
 
 # caddy
 # dnf install 'dnf-command(copr)'
